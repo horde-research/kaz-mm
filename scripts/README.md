@@ -91,3 +91,53 @@ DataSet_X/
 ```
 
 ---
+
+### `gpt_captioning_for_prompt_testing.py`
+📝 **Purpose**: Creates a small test set of Kazakh captions for images
+- Loads image paths from `train_set_Xsmall.json`
+- Groups images by category/subcategory.
+- Picks one random image per group (excluding the first).
+- Sends each image to GPT with a strict 5-sentence factual captioning prompt.
+- Output: `captions_output.json`
+
+---
+
+### `judge_captions.py`
+⚖️ **Purpose**: Automatically chooses the better of two generated captions per image using GPT.
+- Loads images and two captions from `captions_output.json`
+- Sends each image and captions to OpenAI with a strict judging prompt.
+- GPT returns "1" or "2" to select the better caption.
+- Saves updated entries with the winner field into `judged_captions_output.json`
+
+---
+
+
+### `generate_file_map.py`
+🔗 **Purpose**: Creates a JSON map linking local image paths to Hugging Face URLs.
+- Scans all files in destination folder.
+- For each file:
+  - Builds a Hugging Face download URL based on its relative path.
+  - Normalizes Unicode (NFD) and URL-encodes special characters.
+- Output: `file_map.json`
+
+---
+
+### `batch_jsonl_prepare.py`
+🗂️ **Purpose**: Prepares a .jsonl file for OpenAI batch captioning.
+- Loads image paths from `valid_set_Xsmall.json` and URLs from `file_map.json`.
+- For each image:
+  - Creates a batch request with a detailed Kazakh captioning prompt.
+  - Embeds the corresponding image URL.
+- Output: `batch_input.jsonl`.
+
+---
+
+### `gpt_batch_run.py`
+ ⚡ **Purpose**: Submits and monitors an OpenAI batch captioning job.
+- Uploads `batch_input.jsonl` to OpenAI's batch API.
+- Creates a batch job with completion window and monitors status.
+- On success:
+  - Downloads results. 
+  - Saves to `output_valid_dataset_xsmall.json` for further processing.
+
+---
